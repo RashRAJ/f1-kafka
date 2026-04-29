@@ -1,0 +1,119 @@
+version: '3.9'
+
+services:
+  # app:
+  #   build:
+  #     context: ..
+  #     dockerfile: Docker/Dockerfile
+  #   ports:
+  #     - '5001:5000'
+  #   container_name: f1-simulator
+  #   networks:
+  #     - overlay
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - kafka
+
+  # listener:
+  #   build:
+  #     context: ..
+  #     dockerfile: Docker/Dockerfile.listener
+  #   ports:
+  #     - '20777:20777/udp'
+  #   container_name: f1-listener
+  #   networks:
+  #     - overlay
+  #   environment:
+  #     KAFKA_BROKER: kafka:9092
+  #   restart: on-failure
+  #   depends_on:
+  #     - kafka
+
+  producer:
+    build:
+      context: ..
+      dockerfile: Docker/Dockerfile.producer
+    container_name: f1-producer
+    networks:
+      - overlay
+    env_file:
+      - .env
+    restart: on-failure
+    depends_on:
+      - kafka
+      # - init-kafka
+  kafka:
+    image: confluentinc/cp-kafka:7.9.5
+    ports:
+      - "9092:9092"
+      - "9093:9093" # External access (host machine)
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT_INTERNAL://kafka:9092,PLAINTEXT_EXTERNAL://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_INTERNAL://kafka:9092,PLAINTEXT_EXTERNAL://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_INTERNAL:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+    networks:
+      - overlay
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.9.5
+    ports:
+      - 2181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/data
+    networks:
+      - overlay
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:v0.7.2
+    ports:
+      - 8080:8080
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    depends_on:
+      - kafka
+      - zookeeper
+    networks:
+      - overlay
+  init-kafka:
+    image: confluentinc/cp-kafka:7.9.5
+    depends_on:
+      - kafka
+    entrypoint: ['/bin/sh', '-c']
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:9092 --list
+      
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:9092 --create --topic cardata, drivers, intervals, laps, locations, pits, positions, racecontrol, results, grid, stints, radio, weather --replication-factor 1 --partitions 3
+      
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:9092 --list
+      "
+    networks:
+      - overlay
+
+volumes:
+  postgresdata:
+    external: false
+    driver: local
+  cache:
+    driver: local
+  zookeeper_data:
+
+networks:
+  overlay:
+    driver: bridge

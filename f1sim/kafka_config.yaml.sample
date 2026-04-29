@@ -1,0 +1,26 @@
+# Kafka Producer Configuration
+
+# Kafka broker addresses
+brokers:
+  - "localhost:9092"
+  # - "kafka:9092"  # Use this for Docker container
+
+# Default topic (can be overridden per message)
+topic: "f1-data"
+
+# Retry configuration
+retry_max: 5
+retry_backoff: 100  # milliseconds
+
+# Producer reliability
+required_acks: 1  # 0=none, 1=leader, -1=all replicas (WaitForAll)
+
+# Batching configuration (for better throughput)
+linger_ms: 10        # Wait up to 10ms to batch messages
+batch_size: 16384    # 16KB batch size
+buffer_memory: 33554432  # 32MB buffer
+
+# Security configuration (leave empty for local development)
+sasl_username: ""
+sasl_password: ""
+security_protocol: ""  # Options: PLAINTEXT, SASL_SSL, SASL_PLAINTEXT

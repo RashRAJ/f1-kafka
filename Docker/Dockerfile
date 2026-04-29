@@ -1,0 +1,28 @@
+# Build stage
+FROM golang:1.22-alpine AS builder
+
+WORKDIR /app
+
+# Copy go mod files
+COPY f1sim/go.mod f1sim/go.sum* ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY f1sim/ ./
+
+# Build the simulator application
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/simulator ./cmd/simulator/main.go
+
+# Final stage
+FROM alpine:latest
+
+WORKDIR /root/
+
+# Copy binary from builder
+COPY --from=builder /app/simulator .
+
+EXPOSE 5000
+
+CMD ["./simulator"]

@@ -1,0 +1,131 @@
+brokers:
+  - "pkc-l6wr6.europe-west2.gcp.confluent.cloud:9092"
+topic: "f1-data"
+sasl_username: ""
+sasl_password: ""
+security_protocol: "SASL_SSL"
+retry_max: 5
+retry_backoff: 100
+required_acks: 1
+linger_ms: 10
+batch_size: 16384
+buffer_memory: 33554432
+
+# Topic configuration
+topics:
+  # Telemetry topic for UDP listener
+  - name: "devices"
+    partitions: 6
+    replication_factor: 3
+    config:
+      retention.ms: "259200000"  # 3 days
+      max.message.bytes: "2097152"  # 2MB
+
+  # Session metadata topics
+  - name: "f1-sessions"
+    partitions: 3
+    replication_factor: 3
+    config:
+      retention.ms: "2592000000"  # 30 days
+      max.message.bytes: "1048576"  # 1MB
+
+  - name: "f1-meetings"
+    partitions: 3
+    replication_factor: 3
+    config:
+      retention.ms: "2592000000"  # 30 days
+      max.message.bytes: "1048576"  # 1MB
+
+  # High-volume telemetry topics
+  - name: "f1-cardata"
+    partitions: 12
+    replication_factor: 3
+    config:
+      retention.ms: "604800000"  # 7 days
+      max.message.bytes: "10485760"  # 10MB
+
+  - name: "f1-locations"
+    partitions: 12
+    replication_factor: 3
+    config:
+      retention.ms: "604800000"  # 7 days
+      max.message.bytes: "10485760"  # 10MB
+
+  - name: "f1-intervals"
+    partitions: 12
+    replication_factor: 3
+    config:
+      retention.ms: "604800000"  # 7 days
+      max.message.bytes: "10485760"  # 10MB
+
+  # Medium-volume event topics
+  - name: "f1-drivers"
+    partitions: 6
+    replication_factor: 3
+    config:
+      retention.ms: "1209600000"  # 14 days
+      max.message.bytes: "5242880"  # 5MB
+
+  - name: "f1-laps"
+    partitions: 6
+    replication_factor: 3
+    config:
+      retention.ms: "1209600000"  # 14 days
+      max.message.bytes: "5242880"  # 5MB
+
+  - name: "f1-positions"
+    partitions: 6
+    replication_factor: 3
+    config:
+      retention.ms: "1209600000"  # 14 days
+      max.message.bytes: "5242880"  # 5MB
+
+  - name: "f1-stints"
+    partitions: 6
+    replication_factor: 3
+    config:
+      retention.ms: "1209600000"  # 14 days
+      max.message.bytes: "5242880"  # 5MB
+
+  # Low-volume topics
+  - name: "f1-pits"
+    partitions: 3
+    replication_factor: 3
+    config:
+      retention.ms: "1209600000"  # 14 days
+      max.message.bytes: "2097152"  # 2MB
+
+  - name: "f1-racecontrol"
+    partitions: 3
+    replication_factor: 3
+    config:
+      retention.ms: "1209600000"  # 14 days
+      max.message.bytes: "2097152"  # 2MB
+
+  - name: "f1-results"
+    partitions: 3
+    replication_factor: 3
+    config:
+      retention.ms: "2592000000"  # 30 days
+      max.message.bytes: "2097152"  # 2MB
+
+  - name: "f1-grid"
+    partitions: 3
+    replication_factor: 3
+    config:
+      retention.ms: "2592000000"  # 30 days
+      max.message.bytes: "2097152"  # 2MB
+
+  - name: "f1-radio"
+    partitions: 6
+    replication_factor: 3
+    config:
+      retention.ms: "1209600000"  # 14 days
+      max.message.bytes: "5242880"  # 5MB
+
+  - name: "f1-weather"
+    partitions: 3
+    replication_factor: 3
+    config:
+      retention.ms: "1209600000"  # 14 days
+      max.message.bytes: "2097152"  # 2MB

@@ -1,0 +1,4 @@
+years: "2024"
+all_data: true
+base_url: "https://api.openf1.org/v1"
+driver: ""
