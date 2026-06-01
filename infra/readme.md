@@ -6,7 +6,7 @@ Terraform config for a GKE cluster on GCP to run the F1 Kafka pipeline.
 
 | Resource | Value |
 |---|---|
-| Project | `pca-prep-441322` (KipaHQ) |
+| Project | insert |
 | Region | `us-central1` |
 | Zone | `us-central1-a` |
 | VPC | `kafka-f1-vpc` |
